@@ -1,27 +1,16 @@
 import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 
-const LocationPicker = ({ position, setPosition }: { position: any, setPosition: any }) => {
-  function LocationMarker() {
-    useMapEvents({
-      click(event: any) {
-        setPosition(event.latlng);
-      },
-    });
-
-    return position === null ? null : (
-      <Marker position={position}></Marker>
-    );
-  }
-
+const LocationDisplay = ({ position }: { position: { lat: number, lng: number} }) => {
   return (
     <>
     <MapContainer
       // @ts-ignore
-      center={[26.64316263704834, 87.99233436584473]}
-      zoom={15}
+      center={[position.lat, position.lng]}
+      zoom={17}
+      scrollWheelZoom={false}
       style={{
-        height: "300px",
+        height: "500px",
         width: "100%"
       }}>
       <TileLayer
@@ -29,10 +18,10 @@ const LocationPicker = ({ position, setPosition }: { position: any, setPosition:
         // @ts-ignore
         attribution="&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"
       />
-      <LocationMarker />
+      <Marker position={[position.lat, position.lng]}></Marker>
     </MapContainer>
     </>
   );
 };
 
-export default LocationPicker;
+export default LocationDisplay;
