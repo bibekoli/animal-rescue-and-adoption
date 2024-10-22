@@ -14,6 +14,7 @@ export default async function UpdateRescueItem(req: NextApiRequest, res: NextApi
       ...req.body
     };
     delete updateData._id;
+    delete updateData.createdBy;
 
     await rescueList.updateOne(
       {

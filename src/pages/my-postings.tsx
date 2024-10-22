@@ -5,6 +5,7 @@ import { Icon } from '@iconify/react';
 import Head from 'next/head';
 import Image from 'next/image';
 import React from 'react';
+import Swal from 'sweetalert2';
 
 type MyPostings = {
   rescueList: RescueItem[];
@@ -13,6 +14,48 @@ type MyPostings = {
 }
 
 export default function MyPostings({ myPostings }: { myPostings: MyPostings }) {
+  const markAsRescued = async (id: string) => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "Do you want to mark this item as rescued?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, mark it!',
+      cancelButtonText: 'No, cancel!'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await axios.post(`/api/MarkAsRescued`, { _id: id });
+        Swal.fire('Success', 'Marked as Rescued', 'success');
+        window.location.reload();
+      } catch (error) {
+        Swal.fire('Error', 'Failed to mark as rescued', 'error');
+      }
+    }
+  }
+
+  const markAsAdopted = async (id: string) => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "Do you want to mark this item as adopted?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, mark it!',
+      cancelButtonText: 'No, cancel!'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await axios.post(`/api/MarkAsAdopted`, { _id: id });
+        Swal.fire('Success', 'Marked as Adopted', 'success');
+        window.location.reload();
+      } catch (error) {
+        Swal.fire('Error', 'Failed to mark as adopted', 'error');
+      }
+    }
+  }
+
   return (
     <>
     <Head>
@@ -42,10 +85,11 @@ export default function MyPostings({ myPostings }: { myPostings: MyPostings }) {
                   <div>
                     <h3 className="text-xl font-semibold">{rescueItem.title}</h3>
                     <p className="text-gray-500">Status: {rescueItem.status}</p>
+                    <p className="text-gray-500">Rescue Status: {rescueItem.rescueStatus}</p>
                   </div>
                 </div>
                 <div className="flex space-x-4">
-                  <button className="text-blue-500 hover:underline flex items-center">
+                  <button className={`text-blue-500 hover:underline flex items-center ${rescueItem.rescueStatus === 'Rescued' ? 'hidden' : ''}`} onClick={() => markAsRescued(rescueItem._id)}>
                     <Icon icon="mdi:check-circle" className="mr-1" />
                     Mark as Rescued
                   </button>
@@ -82,11 +126,11 @@ export default function MyPostings({ myPostings }: { myPostings: MyPostings }) {
                   />
                   <div>
                     <h3 className="text-xl font-semibold">{adoptionItem.title}</h3>
-                    <p className="text-gray-500">Status: {adoptionItem.adoptionStatus}</p>
+                    <p className="text-gray-500">Adoption Status: {adoptionItem.adoptionStatus}</p>
                   </div>
                 </div>
                 <div className="flex space-x-4">
-                  <button className="text-blue-500 hover:underline flex items-center">
+                  <button className={`text-blue-500 hover:underline flex items-center ${adoptionItem.adoptionStatus === 'Adopted' ? 'hidden' : ''}`} onClick={() => markAsAdopted(adoptionItem._id)}>
                     <Icon icon="mdi:check-circle" className="mr-1" />
                     Mark as Adopted
                   </button>

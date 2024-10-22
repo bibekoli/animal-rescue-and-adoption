@@ -10,6 +10,9 @@ export default async function UpdateRescueItem(req: NextApiRequest, res: NextApi
     const email = req.body.createdBy;
     const user = await users.findOne({ email });
 
+    console.log(req.body);
+    
+
     await rescueList.updateOne(
       {
         _id: new ObjectId(req.body._id as string),

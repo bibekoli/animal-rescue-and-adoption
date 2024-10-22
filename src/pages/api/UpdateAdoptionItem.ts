@@ -14,6 +14,7 @@ export default async function UpdateAdoptionItem(req: NextApiRequest, res: NextA
       ...req.body
     };
     delete updateData._id;
+    delete updateData.createdBy;
 
     await adoptionList.updateOne(
       {
