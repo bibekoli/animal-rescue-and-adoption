@@ -101,10 +101,6 @@ export default function Form() {
     if (locationPosition) {
       parseLocation(locationPosition.lat, locationPosition.lng)
       .then((data) => {
-        if (!data || !data.success) {
-          setLocation("");
-          return;
-        }
         setLocation(data);
         setLocationError(false);
       });
