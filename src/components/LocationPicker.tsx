@@ -17,7 +17,7 @@ const LocationPicker = ({ position, setPosition }: { position: any, setPosition:
   return (
     <>
     <MapContainer
-      // @ts-ignore
+      // @ts-expect-error error expected
       center={[26.64316263704834, 87.99233436584473]}
       zoom={15}
       style={{
@@ -26,7 +26,7 @@ const LocationPicker = ({ position, setPosition }: { position: any, setPosition:
       }}>
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        // @ts-ignore
+        // @ts-expect-error error expected
         attribution="&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"
       />
       <LocationMarker />

@@ -1,115 +1,198 @@
 import Image from "next/image";
-import localFont from "next/font/local";
+import Hero from "@/components/Hero";
+import Head from "next/head";
+import axios from "axios";
+import { GetServerSidePropsContext } from "next";
+import Link from "next/link";
+import { getLocation } from "@/functions/getmyLocation";
+import { useEffect, useState } from "react";
+import { haversineDistance } from "@/functions/haversineDistance";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
+export default function Home({ rescueLists, adoptionLists, rescueCenters }: { rescueLists: RescueItem[], adoptionLists: AdoptionItem[], rescueCenters: RescueCenter[] }) {
+  const [myLocation, setMyLocation] = useState<any>(null);
 
-export default function Home() {
+  useEffect(() => {
+    getLocation().then((location) => {
+      setMyLocation(location);
+    });
+  }, []);
+
   return (
-    <div
-      className={`${geistSans.variable} ${geistMono.variable} grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]`}
-    >
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/pages/index.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <>
+      <Head>
+        <title>{process.env.NEXT_PUBLIC_APP_NAME}</title>
+      </Head>
+      <Hero />
+      {/* Rescue Items */}
+      <div className="container mx-auto py-12">
+        <h2 className="text-2xl font-bold">Rescue Items</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+          {rescueLists.map((rescue: any) => (
+            <Link href={`/rescue/${rescue._id}`} key={rescue._id}>
+            <div
+              key={rescue._id}
+              className="bg-white shadow-lg rounded-lg overflow-hidden">
+              <Image
+                src={`https://wsrv.nl?url=${rescue.images[0]}&w=500&h=500&fit=cover&a=attention`}
+                alt={rescue.title}
+                width={500}
+                height={500}
+                objectFit="cover"
+              />
+              <div className="p-4">
+                <h3 className="font-bold text-xl">{rescue.title}</h3>
+                <div className="mt-4">
+                  <p>
+                    <span className="font-bold">Category: </span>
+                    {rescue.animalType}
+                  </p>
+                  <p>
+                    <span className="font-bold">Location: </span>
+                    {rescue.location}
+                  </p>
+                  <p>
+                    <span className="font-bold">Condition: </span>
+                    {rescue.status}
+                  </p>
+                  {
+                    myLocation && (
+                      <p>
+                        <span className="font-bold">Distance: </span>
+                        About {haversineDistance(myLocation, rescue.locationPosition)} KM Away
+                      </p>
+                    )
+                  }
+                </div>
+              </div>
+            </div>
+            </Link>
+          ))}
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      </div>
+
+      {/* Adoption Items */}
+      <div className="container mx-auto py-12">
+        <h2 className="text-2xl font-bold">Adoption Items</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+          {adoptionLists.map((adoption: any) => (
+            <Link href={`/adoption/${adoption._id}`} key={adoption._id}>
+            <div
+              key={adoption._id}
+              className="bg-white shadow-lg rounded-lg overflow-hidden">
+              <Image
+                src={`https://wsrv.nl?url=${adoption.images[0]}&w=500&h=500&fit=cover&a=attention`}
+                alt={adoption.title}
+                width={500}
+                height={500}
+                objectFit="cover"
+              />
+              <div className="p-4">
+                <h3 className="font-bold text-xl">{adoption.title}</h3>
+                <div className="mt-4">
+                  <p>
+                    <span className="font-bold">Category: </span>
+                    {adoption.animalType}
+                  </p>
+                  <p>
+                    <span className="font-bold">Location: </span>
+                    {adoption.location}
+                  </p>
+                  <p>
+                    <span className="font-bold">Age: </span>
+                    {adoption.age}
+                  </p>
+                  <p>
+                    <span className="font-bold">Vaccinated: </span>
+                    {adoption.vaccinated}
+                  </p>
+                  {
+                    myLocation && (
+                      <p>
+                        <span className="font-bold">Distance: </span>
+                        About {haversineDistance(myLocation, adoption.locationPosition)} KM Away
+                      </p>
+                    )
+                  }
+                </div>
+              </div>
+            </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* Rescue Centers */}
+      <div className="container mx-auto py-12">
+        <h2 className="text-2xl font-bold">Rescue Centers</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+          {rescueCenters.map((center: any) => (
+            <Link href={`/rescue-center/${center._id}`} key={center._id}>
+            <div
+              key={center._id}
+              className="bg-white shadow-lg rounded-lg overflow-hidden">
+              <Image
+                src={`https://wsrv.nl?url=${center.images[0]}&w=500&h=500&fit=cover&a=attention`}
+                alt={center.name}
+                width={500}
+                height={500}
+                objectFit="cover"
+              />
+              <div className="p-4">
+                <h3 className="font-bold text-xl">{center.name}</h3>
+                <div className="mt-4">
+                  <p>
+                    <span className="font-bold">Contact Number: </span>
+                    {center.contactNumber}
+                  </p>
+                  <p>
+                    <span className="font-bold">Location: </span>
+                    {center.location}
+                  </p>
+                  <p>
+                    <span className="font-bold">Landmark: </span>
+                    {center.landmark}
+                  </p>
+                  {
+                    myLocation && (
+                      <p>
+                        <span className="font-bold">Distance: </span>
+                        About {haversineDistance(myLocation, center.locationPosition)} KM Away
+                      </p>
+                    )
+                  }
+                </div>
+              </div>
+            </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+    </>
   );
+}
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  try {
+    const rescueLists = await axios.get(`${process.env.NEXTAUTH_URL}/api/GetAllRescueLists`);
+    const adoptionLists = await axios.get(`${process.env.NEXTAUTH_URL}/api/GetAllAdoptionLists`);
+    const rescueCenters = await axios.get(`${process.env.NEXTAUTH_URL}/api/GetAllRescueCenters`);
+    return {
+      props: {
+        rescueLists: rescueLists.data,
+        adoptionLists: adoptionLists.data,
+        rescueCenters: rescueCenters.data,
+      },
+    };
+  }
+  catch (error) {
+    console.log(error);
+    return {
+      props: {
+        rescueLists: [],
+        adoptionLists: [],
+        rescueCenters: [],
+      }
+    };
+  }
 }
