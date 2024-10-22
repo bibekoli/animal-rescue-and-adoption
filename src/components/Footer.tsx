@@ -2,9 +2,9 @@ import { Icon } from "@iconify/react";
 
 export default function Footer() {
   return (
-    <footer className="bg-indigo-500 text-white">
-      <div className="container mx-auto p-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <footer className="bg-indigo-500 text-white p-12">
+      <div className="container mx-auto p-4 max-w-screen-xl">
+        <div className="flex flex-col gap-4 md:flex-row md:justify-between">
           <div className="space-y-4">
             <h2 className="text-xl font-bold">About Us</h2>
             <p>

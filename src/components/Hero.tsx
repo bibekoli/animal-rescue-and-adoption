@@ -18,14 +18,14 @@ export default function Hero() {
         </p>
         <div className="pt-10 items-center justify-center space-y-3 sm:space-x-6 sm:space-y-0 sm:flex lg:justify-start">
           <Link
-            href="/discover/for-rescue"
+            href="/discover/rescue"
             className="px-7 py-3 w-full bg-emerald-500 text-emerald-50 text-center rounded-md shadow-md shadow-indigo-200 sm:w-auto flex items-center gap-2"
           >
             <Icon icon="mdi:location-radius" />
             Discover Nearby for Rescue
           </Link>
           <Link
-            href="/discover/for-adoption"
+            href="/discover/adoption"
             className="px-7 py-3 w-full bg-indigo-500 text-indigo-50 text-center rounded-md shadow-md shadow-indigo-200 sm:w-auto flex items-center gap-2"
           >
             <Icon icon="mdi:location-radius" />
