@@ -179,8 +179,8 @@ export default function Form() {
     setSaving(true);
 
     axios.post("/api/NewRescueCenter", item)
-    .then(() => {
-      Router.push("/discover/rescue-centers");
+    .then((response) => {
+      Router.push("/rescue-center/" + response.data._id);
     })
     .catch((error) => {
       alert(error.response.data.message);

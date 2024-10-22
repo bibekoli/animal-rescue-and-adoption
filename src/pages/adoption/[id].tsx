@@ -29,7 +29,7 @@ export default function AdoptionItem({ item }: { item: AdoptionItem }) {
   return (
     <>
       <Head>
-        <title>{item.title} - Adoption</title>
+        <title>{`${item.title} - Adoption`}</title>
       </Head>
       <div className="flex flex-col md:flex-row max-w-screen-xl mx-auto">
         <div className={`flex flex-col md:w-1/2 m-4 relative rounded-xl`}>

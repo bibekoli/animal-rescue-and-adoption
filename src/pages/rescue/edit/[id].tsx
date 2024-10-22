@@ -1,72 +1,28 @@
-import Image from "next/image";
+import ImageCarousel from "@/components/ImageCarousel";
+import axios from "axios";
+import { GetServerSidePropsContext } from "next";
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+import Link from "next/link";
+import { getLocation } from "@/functions/getmyLocation";
+import { haversineDistance } from "@/functions/haversineDistance";
+import Head from "next/head";
+const LocationDisplay = dynamic(() => import("@/components/LocationDisplay"), { ssr: false });
+
+import Image from "next/image";
 import { Icon } from "@iconify/react";
 import { getSession, useSession } from "next-auth/react";
-import Head from "next/head";
-import axios from "axios";
 import Router from "next/router";
-import Script from "next/script";
-import dynamic from "next/dynamic";
 import parseLocation from "@/functions/parseLocation";
 import Swal from "sweetalert2";
-import { haversineDistance } from "@/functions/haversineDistance";
+import { DropDown, TextInput } from "@/pages/new/rescue";
 const LocationPicker = dynamic(() => import('@/components/LocationPicker'), { ssr: false });
 
-type TextInputProps = {
-  type: string,
-  label: string,
-  placeholder: string,
-  required?: boolean,
-  disabled?: boolean,
-  readonly?: boolean,
-  error?: boolean,
-  setError?: any,
-  value: string,
-  onChange: any,
-  className?: string,
-}
-
-export const TextInput = ({ type, label, placeholder, required, disabled, error, setError, readonly, value, onChange, className }: TextInputProps) => (
-  <div className={`form-control w-full ${className}`}>
-    <label className="label">
-      <span className="label-text font-semibold required">{label} {required && "*"}</span>
-    </label>
-    <input type={type} disabled={disabled} readOnly={readonly} placeholder={placeholder} value={value} onChange={onChange} className={`input input-bordered input-h w-full rounded-lg ${error && "input-error"}`} />
-  </div>
-);
-
-type DropDownProps = {
-  label: string,
-  required?: boolean,
-  value: string,
-  onChange: any,
-  options: string[],
-  className?: string,
-}
-
-export const DropDown = ({ label, required, value, onChange, options, className }: DropDownProps) => (
-  <div className={`form-control w-full ${className}`}>
-    <label className="label">
-      <span className="label-text font-semibold required">{label} {required && "*"}</span>
-    </label>
-    <select value={value} onChange={onChange} className="select select-bordered w-full rounded-lg">
-      {
-        options.map((option, index) => (
-          <option key={index} value={option}>{option}</option>
-        ))
-      }
-    </select>
-  </div>
-);
-
-export default function Form() {
+export default function EditRescueItem({ item }: { item: RescueItem }) {
   const [title, setName] = useState("");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
-  const [locationPosition, setLocationPosition] = useState({
-    lat: 26.64316263704834,
-    lng: 87.99233436584473
-  });
+  const [locationPosition, setLocationPosition] = useState<any>(null);
   const [landmark, setLandmark] = useState("");
   const [animalType, setAnimalType] = useState("Dog");
   const [animalBreed, setAnimalBreed] = useState("");
@@ -86,17 +42,27 @@ export default function Form() {
 
   const data = useSession();
 
-  console.log(locationPosition);
-  
-
-  console.log(haversineDistance({lat: 26.643160239645177, lng: 87.99198031425476}, {lat: 26.64316263704834, lng: 87.99233436584473}));
-
   useEffect(() => {
     if (data && data.status === "loading") return;
     if (data && data.status === "unauthenticated") {
       Router.push("/auth/login");
     }
   }, [data]);
+
+  useEffect(() => {
+    if (item) {
+      setName(item.title);
+      setDescription(item.description);
+      setLocation(item.location);
+      setLocationPosition(item.locationPosition);
+      setLandmark(item.landmark);
+      setAnimalType(item.animalType);
+      setAnimalBreed(item.animalBreed);
+      setStatus(item.status);
+      setImages(item.images);
+      setAnimalBehavior(item.animalBehavior);
+    }
+  }, [item]);
 
   useEffect(() => {
     if (locationPosition) {
@@ -172,7 +138,8 @@ export default function Form() {
 
     if (error) return;
 
-    const item = {
+    const updateItem = {
+      _id: item._id,
       title: title.trim(),
       description: description.trim(),
       location: location.trim(),
@@ -188,7 +155,7 @@ export default function Form() {
 
     setSaving(true);
 
-    axios.post("/api/NewRescueItem", item)
+    axios.post("/api/UpdateRescueItem", updateItem)
     .then((response) => {
       Router.push("/rescue/" + response.data._id);
     })
@@ -201,7 +168,7 @@ export default function Form() {
   return (
     <>
       <Head>
-        <title>Add a New Rescue</title>
+        <title>Update Rescue Item</title>
       </Head>
       <h1 className="text-2xl font-semibold mb-4">Add a New Rescue</h1>
       <div className="max-w-screen-xl mx-auto">
@@ -394,8 +361,8 @@ export default function Form() {
                   </>
                 ) : (
                   <>
-                    <Icon icon="ant-design:plus-outlined" width={20} height={20} />
-                    <span>Create</span>
+                    <Icon icon="ant-design:save" width={20} height={20} />
+                    <span>Update</span>
                   </>
                 )
               }
@@ -405,4 +372,23 @@ export default function Form() {
       </div>
     </>
   )
+}
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const id = context.params?.id;
+
+  try {
+    const item = await axios.get(`${process.env.NEXTAUTH_URL}/api/GetRescueItem?id=${id}`);
+    return {
+      props: {
+        item: item.data,
+      },
+    };
+  }
+  catch (error) {
+    console.log(error);
+    return {
+      props: {}
+    };
+  }
 }

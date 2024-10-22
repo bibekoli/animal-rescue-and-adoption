@@ -1,83 +1,38 @@
-import Image from "next/image";
-import { useEffect, useState } from "react";
-import { Icon } from "@iconify/react";
-import { getSession, useSession } from "next-auth/react";
-import Head from "next/head";
 import axios from "axios";
-import Router from "next/router";
-import Script from "next/script";
+import { GetServerSidePropsContext } from "next";
+import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import parseLocation from "@/functions/parseLocation";
+import Head from "next/head";
+import { Icon } from "@iconify/react/dist/iconify.js";
+import { DropDown, TextInput } from "@/pages/new/rescue";
+const LocationPicker = dynamic(() => import("@/components/LocationPicker"), { ssr: false });
+import Router from "next/router";
 import Swal from "sweetalert2";
-import { haversineDistance } from "@/functions/haversineDistance";
-const LocationPicker = dynamic(() => import('@/components/LocationPicker'), { ssr: false });
+import parseLocation from "@/functions/parseLocation";
+import { useSession } from "next-auth/react";
+import Image from "next/image";
 
-type TextInputProps = {
-  type: string,
-  label: string,
-  placeholder: string,
-  required?: boolean,
-  disabled?: boolean,
-  readonly?: boolean,
-  error?: boolean,
-  setError?: any,
-  value: string,
-  onChange: any,
-  className?: string,
-}
-
-export const TextInput = ({ type, label, placeholder, required, disabled, error, setError, readonly, value, onChange, className }: TextInputProps) => (
-  <div className={`form-control w-full ${className}`}>
-    <label className="label">
-      <span className="label-text font-semibold required">{label} {required && "*"}</span>
-    </label>
-    <input type={type} disabled={disabled} readOnly={readonly} placeholder={placeholder} value={value} onChange={onChange} className={`input input-bordered input-h w-full rounded-lg ${error && "input-error"}`} />
-  </div>
-);
-
-type DropDownProps = {
-  label: string,
-  required?: boolean,
-  value: string,
-  onChange: any,
-  options: string[],
-  className?: string,
-}
-
-export const DropDown = ({ label, required, value, onChange, options, className }: DropDownProps) => (
-  <div className={`form-control w-full ${className}`}>
-    <label className="label">
-      <span className="label-text font-semibold required">{label} {required && "*"}</span>
-    </label>
-    <select value={value} onChange={onChange} className="select select-bordered w-full rounded-lg">
-      {
-        options.map((option, index) => (
-          <option key={index} value={option}>{option}</option>
-        ))
-      }
-    </select>
-  </div>
-);
-
-export default function Form() {
-  const [title, setName] = useState("");
+export default function AdoptionItem({ item }: { item: AdoptionItem }) {
+  const [title, setTitle] = useState("");
+  const [age, setAge] = useState("");
+  const [vaccinated, setVaccinated] = useState("Regularly Vaccinated");
+  const [reasonForListing, setReasonForListing] = useState("");
+  const [gender, setGender] = useState("Male");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
-  const [locationPosition, setLocationPosition] = useState({
-    lat: 26.64316263704834,
-    lng: 87.99233436584473
-  });
+  const [locationPosition, setLocationPosition] = useState<any>(null);
   const [landmark, setLandmark] = useState("");
   const [animalType, setAnimalType] = useState("Dog");
   const [animalBreed, setAnimalBreed] = useState("");
-  const [animalBehavior, setAnimalBehavior] = useState("");
+  const [animalBehavior, setAnimalBehavior] = useState("Normal");
   const [status, setStatus] = useState("Injured");
+  const [ownerContact, setOwnerContact] = useState("");
 
   const [uploadingImage, setUploadingImage] = useState(false);
   const [images, setImages] = useState<string[]>([]);
 
-
-  const [titleError, setNameError] = useState(false);
+  const [titleError, setTitleError] = useState(false);
+  const [ageError, setAgeError] = useState(false);
   const [descriptionError, setDescriptionError] = useState(false);
   const [locationError, setLocationError] = useState(false);
 
@@ -85,11 +40,6 @@ export default function Form() {
   const [saving, setSaving] = useState(false);
 
   const data = useSession();
-
-  console.log(locationPosition);
-  
-
-  console.log(haversineDistance({lat: 26.643160239645177, lng: 87.99198031425476}, {lat: 26.64316263704834, lng: 87.99233436584473}));
 
   useEffect(() => {
     if (data && data.status === "loading") return;
@@ -107,6 +57,26 @@ export default function Form() {
       });
     }
   }, [locationPosition]);
+
+  useEffect(() => {
+    if (item) {
+      setTitle(item.title);
+      setAge(item.age);
+      setVaccinated(item.vaccinated);
+      setReasonForListing(item.reasonForListing);
+      setGender(item.gender);
+      setDescription(item.description);
+      setLocation(item.location);
+      setLocationPosition(item.locationPosition);
+      setLandmark(item.landmark);
+      setAnimalType(item.animalType);
+      setAnimalBreed(item.animalBreed);
+      setAnimalBehavior(item.animalBehavior);
+      setStatus(item.status);
+      setOwnerContact(item.ownerContact);
+      setImages(item.images);
+    }
+  }, [item]);
 
   const handleImageUpload = (e: any) => {
     const files = e.target.files;
@@ -151,7 +121,7 @@ export default function Form() {
     let error = false;
 
     if (title.trim() === "") {
-      setNameError(true);
+      setTitleError(true);
       error = true;
     }
 
@@ -170,10 +140,19 @@ export default function Form() {
       error = true;
     }
 
+    if (age.trim() === "") {
+      setAgeError(true);
+      error = true;
+    }
+
     if (error) return;
 
-    const item = {
+    const updateItem = {
+      _id: item._id,
       title: title.trim(),
+      age: age.trim(),
+      gender: gender,
+      vaccinated: vaccinated,
       description: description.trim(),
       location: location.trim(),
       locationPosition: locationPosition,
@@ -183,14 +162,16 @@ export default function Form() {
       animalBehavior: animalBehavior,
       status: status,
       images: images,
-      createdBy: data.data?.user?.email
+      reasonForListing: reasonForListing,
+      ownerContact: ownerContact,
+      createdBy: data.data?.user?.email,
     }
 
     setSaving(true);
 
-    axios.post("/api/NewRescueItem", item)
+    axios.post("/api/UpdateAdoptionItem", updateItem)
     .then((response) => {
-      Router.push("/rescue/" + response.data._id);
+      Router.push("/adoption/" + response.data._id);
     })
     .catch((error) => {
       alert(error.response.data.message);
@@ -201,9 +182,9 @@ export default function Form() {
   return (
     <>
       <Head>
-        <title>Add a New Rescue</title>
+        <title>List For Adoption</title>
       </Head>
-      <h1 className="text-2xl font-semibold mb-4">Add a New Rescue</h1>
+      <h1 className="text-2xl font-semibold mb-4">List For Adoption</h1>
       <div className="max-w-screen-xl mx-auto">
         <div className="rounded-md">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -213,13 +194,13 @@ export default function Form() {
                 required
                 type="text"
                 label="Title"
-                placeholder="e.g. An injured dog with a broken leg"
+                placeholder="e.g. Cute White Puppy"
                 error={titleError}
-                setError={setNameError}
+                setError={setTitleError}
                 value={title}
                 onChange={(e: any) => {
-                  setName(e.target.value);
-                  setNameError(false);
+                  setTitle(e.target.value);
+                  setTitleError(false);
                 }}
               />
 
@@ -229,7 +210,7 @@ export default function Form() {
                   <span className="label-text font-semibold required">Description *</span>
                 </label>
                 <textarea
-                  className={`textarea textarea-bordered ${descriptionError && "textarea-error"} rounded-md h-[248px] resize-none`}
+                  className={`textarea textarea-bordered ${descriptionError && "textarea-error"} rounded-md h-[150px] resize-none`}
                   placeholder="Description"
                   rows={8}
                   value={description}
@@ -259,6 +240,21 @@ export default function Form() {
                 ]}
               />
 
+              {/* Gender */}
+              <DropDown
+                label="Gender"
+                required
+                value={gender}
+                onChange={(e: any) => setGender(e.target.value)}
+                options={[
+                  "Male",
+                  "Female",
+                  "Male Neutered",
+                  "Female Spayed",
+                  "Other"
+                ]}
+              />
+
               {/* Animal Breed */}
               <TextInput
                 type="text"
@@ -275,8 +271,23 @@ export default function Form() {
                 value={animalBehavior}
                 onChange={(e: any) => setAnimalBehavior(e.target.value)}
                 options={[
-                  "Normal", "Aggressive", "Friendly", "Scared", "Other"
+                  "Normal", "Aggressive", "Friendly", "Scared", "Aggressive to other animals", "Aggressive to strangers", "Shy", "Other"
                 ]}
+              />
+
+              {/* Age */}
+              <TextInput
+                type="text"
+                label="Age"
+                placeholder="e.g. 2 years"
+                value={age}
+                onChange={(e: any) => {
+                  setAge(e.target.value);
+                  setAgeError(false);
+                }}
+                error={ageError}
+                setError={setAgeError}
+                required
               />
 
               {/* Status */}
@@ -286,12 +297,48 @@ export default function Form() {
                 value={status}
                 onChange={(e: any) => setStatus(e.target.value)}
                 options={[
-                  "Healthy", "Injured", "Sick", "Pregnant", "Tortured", "Dead", "Other"
+                  "Healthy", "Pregnant", "Sick", "Injured", "Other"
                 ]}
               />
             </div>
 
             <div className="flex flex-col gap-4">
+              {/* Vaccination Status */}
+              <DropDown
+                label="Vaccination Status"
+                required
+                value={vaccinated}
+                onChange={(e: any) => setVaccinated(e.target.value)}
+                options={[
+                  "Regularly Vaccinated", "Not Vaccinated", "Partially Vaccinated", "Unknown"
+                ]}
+              />
+
+              {/* Reason For Listing */}
+              <div className="form-control w-full">
+                <label className="label">
+                  <span className="label-text font-semibold required">Reason For Listing</span>
+                </label>
+                <textarea
+                  className={`textarea textarea-bordered rounded-md h-[150px] resize-none`}
+                  placeholder="e.g. No longer able to take care of the animal"
+                  rows={8}
+                  value={reasonForListing}
+                  onChange={e => {
+                    setReasonForListing(e.target.value);
+                  }}
+                />
+              </div>
+
+              {/* Owner Contact */}
+              <TextInput
+                type="text"
+                label="Owner Contact"
+                placeholder="e.g. 021-123456"
+                value={ownerContact}
+                onChange={(e: any) => setOwnerContact(e.target.value)}
+              />
+
               {/* Images */}
               <div className="form-control w-full">
                 <label className="label">
@@ -390,12 +437,12 @@ export default function Form() {
                 saving ? (
                   <>
                     <Icon icon="gg:spinner-two-alt" width={20} height={20} className="animate-spin" />
-                    <span>Create</span>
+                    <span>Update</span>
                   </>
                 ) : (
                   <>
-                    <Icon icon="ant-design:plus-outlined" width={20} height={20} />
-                    <span>Create</span>
+                    <Icon icon="ant-design:save-outlined" width={20} height={20} />
+                    <span>Update</span>
                   </>
                 )
               }
@@ -405,4 +452,23 @@ export default function Form() {
       </div>
     </>
   )
+}
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const id = context.params?.id;
+
+  try {
+    const item = await axios.get(`${process.env.NEXTAUTH_URL}/api/GetAdoptionItem?id=${id}`);
+    return {
+      props: {
+        item: item.data,
+      },
+    };
+  }
+  catch (error) {
+    console.log(error);
+    return {
+      props: {}
+    };
+  }
 }

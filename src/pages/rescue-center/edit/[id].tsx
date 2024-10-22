@@ -1,95 +1,35 @@
-import Image from "next/image";
-import { useEffect, useState } from "react";
-import { Icon } from "@iconify/react";
-import { getSession, useSession } from "next-auth/react";
-import Head from "next/head";
 import axios from "axios";
-import Router from "next/router";
-import Script from "next/script";
+import { GetServerSidePropsContext } from "next";
+import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import parseLocation from "@/functions/parseLocation";
+import Head from "next/head";
+import { TextInput } from "@/pages/new/rescue";
+import { Icon } from "@iconify/react/dist/iconify.js";
+import Image from "next/image";
+import Router from "next/router";
+const LocationPicker = dynamic(() => import("@/components/LocationPicker"), { ssr: false });
 import Swal from "sweetalert2";
-import { haversineDistance } from "@/functions/haversineDistance";
-const LocationPicker = dynamic(() => import('@/components/LocationPicker'), { ssr: false });
+import { useSession } from "next-auth/react";
+import parseLocation from "@/functions/parseLocation";
 
-type TextInputProps = {
-  type: string,
-  label: string,
-  placeholder: string,
-  required?: boolean,
-  disabled?: boolean,
-  readonly?: boolean,
-  error?: boolean,
-  setError?: any,
-  value: string,
-  onChange: any,
-  className?: string,
-}
 
-export const TextInput = ({ type, label, placeholder, required, disabled, error, setError, readonly, value, onChange, className }: TextInputProps) => (
-  <div className={`form-control w-full ${className}`}>
-    <label className="label">
-      <span className="label-text font-semibold required">{label} {required && "*"}</span>
-    </label>
-    <input type={type} disabled={disabled} readOnly={readonly} placeholder={placeholder} value={value} onChange={onChange} className={`input input-bordered input-h w-full rounded-lg ${error && "input-error"}`} />
-  </div>
-);
-
-type DropDownProps = {
-  label: string,
-  required?: boolean,
-  value: string,
-  onChange: any,
-  options: string[],
-  className?: string,
-}
-
-export const DropDown = ({ label, required, value, onChange, options, className }: DropDownProps) => (
-  <div className={`form-control w-full ${className}`}>
-    <label className="label">
-      <span className="label-text font-semibold required">{label} {required && "*"}</span>
-    </label>
-    <select value={value} onChange={onChange} className="select select-bordered w-full rounded-lg">
-      {
-        options.map((option, index) => (
-          <option key={index} value={option}>{option}</option>
-        ))
-      }
-    </select>
-  </div>
-);
-
-export default function Form() {
-  const [title, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [location, setLocation] = useState("");
-  const [locationPosition, setLocationPosition] = useState({
-    lat: 26.64316263704834,
-    lng: 87.99233436584473
-  });
-  const [landmark, setLandmark] = useState("");
-  const [animalType, setAnimalType] = useState("Dog");
-  const [animalBreed, setAnimalBreed] = useState("");
-  const [animalBehavior, setAnimalBehavior] = useState("");
-  const [status, setStatus] = useState("Injured");
-
+export default function AdoptionItem({ item }: { item: RescueCenter }) {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [images, setImages] = useState<string[]>([]);
-
-
-  const [titleError, setNameError] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [name, setName] = useState("");
+  const [contactNumber, setContactNumber] = useState("");
+  const [description, setDescription] = useState("");
+  const [location, setLocation] = useState("");
+  const [locationPosition, setLocationPosition] = useState<any>(null);
+  const [landmark, setLandmark] = useState("");
+  const [nameError, setNameError] = useState(false);
+  const [contactNumberError, setContactNumberError] = useState(false);
   const [descriptionError, setDescriptionError] = useState(false);
   const [locationError, setLocationError] = useState(false);
-
   const [imageError, setImageError] = useState(false);
-  const [saving, setSaving] = useState(false);
 
   const data = useSession();
-
-  console.log(locationPosition);
-  
-
-  console.log(haversineDistance({lat: 26.643160239645177, lng: 87.99198031425476}, {lat: 26.64316263704834, lng: 87.99233436584473}));
 
   useEffect(() => {
     if (data && data.status === "loading") return;
@@ -107,6 +47,18 @@ export default function Form() {
       });
     }
   }, [locationPosition]);
+
+  useEffect(() => {
+    if (item) {
+      setName(item.name);
+      setContactNumber(item.contactNumber);
+      setDescription(item.description);
+      setLocation(item.location);
+      setLocationPosition(item.locationPosition);
+      setLandmark(item.landmark);
+      setImages(item.images);
+    }
+  }, [item]);
 
   const handleImageUpload = (e: any) => {
     const files = e.target.files;
@@ -150,8 +102,13 @@ export default function Form() {
   const addItem = () => {
     let error = false;
 
-    if (title.trim() === "") {
+    if (name.trim() === "") {
       setNameError(true);
+      error = true;
+    }
+
+    if (contactNumber.trim() === "") {
+      setContactNumberError(true);
       error = true;
     }
 
@@ -172,25 +129,23 @@ export default function Form() {
 
     if (error) return;
 
-    const item = {
-      title: title.trim(),
+    const itemData = {
+      _id: item._id,
+      name: name.trim(),
       description: description.trim(),
+      contactNumber: contactNumber.trim(),
       location: location.trim(),
       locationPosition: locationPosition,
       landmark: landmark.trim(),
-      animalType: animalType,
-      animalBreed: animalBreed.trim(),
-      animalBehavior: animalBehavior,
-      status: status,
       images: images,
       createdBy: data.data?.user?.email
     }
 
     setSaving(true);
 
-    axios.post("/api/NewRescueItem", item)
+    axios.post("/api/UpdateRescueCenter", itemData)
     .then((response) => {
-      Router.push("/rescue/" + response.data._id);
+      Router.push("/rescue-center/" + response.data._id);
     })
     .catch((error) => {
       alert(error.response.data.message);
@@ -201,9 +156,9 @@ export default function Form() {
   return (
     <>
       <Head>
-        <title>Add a New Rescue</title>
+        <title>Update Rescue Center</title>
       </Head>
-      <h1 className="text-2xl font-semibold mb-4">Add a New Rescue</h1>
+      <h1 className="text-2xl font-semibold mb-4">Update Rescue Center</h1>
       <div className="max-w-screen-xl mx-auto">
         <div className="rounded-md">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -212,11 +167,11 @@ export default function Form() {
               <TextInput
                 required
                 type="text"
-                label="Title"
-                placeholder="e.g. An injured dog with a broken leg"
-                error={titleError}
+                label="Name"
+                placeholder="e.g. Eastern Nepal Animal Rescue Center"
+                error={nameError}
                 setError={setNameError}
-                value={title}
+                value={name}
                 onChange={(e: any) => {
                   setName(e.target.value);
                   setNameError(false);
@@ -229,7 +184,7 @@ export default function Form() {
                   <span className="label-text font-semibold required">Description *</span>
                 </label>
                 <textarea
-                  className={`textarea textarea-bordered ${descriptionError && "textarea-error"} rounded-md h-[248px] resize-none`}
+                  className={`textarea textarea-bordered ${descriptionError && "textarea-error"} rounded-md h-[150px] resize-none`}
                   placeholder="Description"
                   rows={8}
                   value={description}
@@ -240,54 +195,19 @@ export default function Form() {
                 />
               </div>
 
-              {/* Animal Type */}
-              <DropDown
-                label="Animal Type"
-                required
-                value={animalType}
-                onChange={(e: any) => setAnimalType(e.target.value)}
-                options={[
-                  "Alligator", "Antelope", "Armadillo", "Bat", "Bear", "Beaver", "Bird", "Bobcat",
-                  "Buffalo", "Camel", "Caracal", "Cat", "Chicken", "Chinchilla", "Cow", "Coyote", "Deer",
-                  "Dog", "Duck", "Eagle", "Elk", "Ferret", "Fish", "Fox", "Frog", "Goat", "Goose",
-                  "Guinea Pig", "Hamster", "Hawk", "Hedgehog", "Horse", "Iguana", "Jackal",
-                  "Kangaroo", "Leopard", "Lizard", "Lynx", "Mink", "Mole", "Monkey", "Mongoose",
-                  "Ocelot", "Otter", "Owl", "Panther", "Parrot", "Peacock", "Pigeon", "Pig",
-                  "Porcupine", "Possum", "Prairie Dog", "Rabbit", "Raccoon", "Reindeer", "Sheep",
-                  "Skunk", "Snake", "Squirrel", "Swan", "Toad", "Tortoise", "Turtle", "Turkey",
-                  "Wallaby", "Wolf", "Other"
-                ]}
-              />
-
-              {/* Animal Breed */}
+              {/* Contact Number */}
               <TextInput
+                required
                 type="text"
-                label="Animal Breed"
-                placeholder="e.g. German Shepherd"
-                value={animalBreed}
-                onChange={(e: any) => setAnimalBreed(e.target.value)}
-              />
-
-              {/* Behavior */}
-              <DropDown
-                label="Behavior"
-                required
-                value={animalBehavior}
-                onChange={(e: any) => setAnimalBehavior(e.target.value)}
-                options={[
-                  "Normal", "Aggressive", "Friendly", "Scared", "Other"
-                ]}
-              />
-
-              {/* Status */}
-              <DropDown
-                label="Status"
-                required
-                value={status}
-                onChange={(e: any) => setStatus(e.target.value)}
-                options={[
-                  "Healthy", "Injured", "Sick", "Pregnant", "Tortured", "Dead", "Other"
-                ]}
+                label="Contact Number"
+                placeholder="e.g. 98XXXXXXXX"
+                error={contactNumberError}
+                setError={setContactNumberError}
+                value={contactNumber}
+                onChange={(e: any) => {
+                  setContactNumber(e.target.value);
+                  setContactNumberError(false);
+                }}
               />
             </div>
 
@@ -390,12 +310,12 @@ export default function Form() {
                 saving ? (
                   <>
                     <Icon icon="gg:spinner-two-alt" width={20} height={20} className="animate-spin" />
-                    <span>Create</span>
+                    <span>Update</span>
                   </>
                 ) : (
                   <>
-                    <Icon icon="ant-design:plus-outlined" width={20} height={20} />
-                    <span>Create</span>
+                    <Icon icon="ant-design:save-outlined" width={20} height={20} />
+                    <span>Update</span>
                   </>
                 )
               }
@@ -405,4 +325,23 @@ export default function Form() {
       </div>
     </>
   )
+}
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const id = context.params?.id;
+
+  try {
+    const item = await axios.get(`${process.env.NEXTAUTH_URL}/api/GetRescueCenter?id=${id}`);
+    return {
+      props: {
+        item: item.data,
+      },
+    };
+  }
+  catch (error) {
+    console.log(error);
+    return {
+      props: {}
+    };
+  }
 }

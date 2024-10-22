@@ -150,7 +150,7 @@ export default function Header() {
               {status === "authenticated" && (
                 <>
                   <li>
-                    <Link href={`/lists`}>
+                    <Link href={`/my-postings`}>
                       <Image
                         src={user.image}
                         width={25}
@@ -161,7 +161,7 @@ export default function Header() {
                           e.currentTarget.src = "/next.svg";
                         }}
                       />
-                      My Account
+                      My Postings
                     </Link>
                   </li>
                   <li>

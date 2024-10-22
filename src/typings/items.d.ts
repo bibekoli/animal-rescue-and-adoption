@@ -28,6 +28,7 @@ type RescueItem = {
   landmark: string;
   animalType: string;
   animalBreed: string;
+  animalBehavior: string;
   status: string;
   images: string[];
   createdBy: string;
