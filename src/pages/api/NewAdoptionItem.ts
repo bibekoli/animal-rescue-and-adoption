@@ -17,6 +17,7 @@ export default async function NewRescueItem(
       createdBy: user?._id,
       createdAt: new Date(),
       adoptedAt: "",
+      adoptionStatus: "Available",
     };
     const response = await rescueList.insertOne(insertData);
     if (response.insertedId) {

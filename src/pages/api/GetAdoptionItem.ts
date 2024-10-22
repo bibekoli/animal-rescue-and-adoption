@@ -2,11 +2,11 @@ import { NextApiRequest, NextApiResponse } from "next";
 import ConnectToDatabase from "@/functions/mongodb";
 import { ObjectId } from "mongodb";
 
-export default async function RescueItem(req: NextApiRequest, res: NextApiResponse) {
+export default async function AdoptionItem(req: NextApiRequest, res: NextApiResponse) {
   try {
     const id = req.query.id;
     const { db } = await ConnectToDatabase();
-    const rescueList = db.collection("RescueList");
+    const rescueList = db.collection("AdoptionList");
     const users = db.collection("Users");
 
     const response = await rescueList.findOne({

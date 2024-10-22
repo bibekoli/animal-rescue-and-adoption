@@ -13,6 +13,7 @@ type RescueCenter = {
   createdBy: string;
   createdAt: string;
   members: string[];
+  op: User;
 };
 
 type RescueItem = {
@@ -34,6 +35,7 @@ type RescueItem = {
   rescueStatus: string;
   rescuedBy: string;
   rescuedAt: string;
+  op: User;
 };
 
 
@@ -61,4 +63,15 @@ type AdoptionItem = {
   gender: string;
   animalBehavior: string;
   adoptedAt: string;
+  op: User;
+};
+
+type User = {
+  _id: string;
+  name: string;
+  email: string;
+  userName: string;
+  password: string;
+  createdAt: string;
+  isAdmin: boolean;
 };
