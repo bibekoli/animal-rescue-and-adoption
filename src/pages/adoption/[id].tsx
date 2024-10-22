@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { getLocation } from "@/functions/getmyLocation";
 import { haversineDistance } from "@/functions/haversineDistance";
+import Head from "next/head";
 const LocationDisplay = dynamic(() => import("@/components/LocationDisplay"), { ssr: false });
 
 const TableRow = ({ label, value }: { label: string, value: any }) => (
@@ -27,6 +28,9 @@ export default function AdoptionItem({ item }: { item: AdoptionItem }) {
 
   return (
     <>
+      <Head>
+        <title>{item.title} - Adoption</title>
+      </Head>
       <div className="flex flex-col md:flex-row max-w-screen-xl mx-auto">
         <div className={`flex flex-col md:w-1/2 m-4 relative rounded-xl`}>
           <ImageCarousel images={item.images} activeImageIndex={activeImageIndex} setActiveImageIndex={setActiveImageIndex} />

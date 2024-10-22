@@ -16,7 +16,7 @@ const TableRow = ({ label, value }: { label: string, value: any }) => (
   </tr>
 );
 
-export default function RescueItem({ item }: { item: RescueItem }) {
+export default function AdoptionItem({ item }: { item: RescueCenter }) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [myLocation, setMyLocation] = useState<any>(null);
 
@@ -29,7 +29,7 @@ export default function RescueItem({ item }: { item: RescueItem }) {
   return (
     <>
       <Head>
-        <title>{item.title} - Rescue</title>
+        <title>{item.name} - Adoption</title>
       </Head>
       <div className="flex flex-col md:flex-row max-w-screen-xl mx-auto">
         <div className={`flex flex-col md:w-1/2 m-4 relative rounded-xl`}>
@@ -37,7 +37,7 @@ export default function RescueItem({ item }: { item: RescueItem }) {
         </div>
         <div className="flex flex-col md:w-1/2">
           <h1 className={`text-2xl font-[800] flex items-center gap-2`}>
-            {item.title}
+            {item.name}
           </h1>
 
           <table className="w-full border mt-4">
@@ -48,18 +48,15 @@ export default function RescueItem({ item }: { item: RescueItem }) {
               </tr>
             </thead>
             <tbody>
-              <TableRow label="Name" value={item.title} />
-              <TableRow label="Category" value={item.animalType} />
-              <TableRow label="Breed" value={item.animalBreed} />
-              <TableRow label="Condition" value={item.status} />
+              <TableRow label="Name" value={item.name} />
+              <TableRow label="Contact" value={item.contactNumber} />
               <TableRow label="Location" value={item.location} />
               <TableRow label="Landmark" value={item.landmark} />
-              <TableRow label="Rescue&nbsp;Status" value={item.rescueStatus} />
-                {
-                  myLocation && (
-                    <TableRow label="Distance" value={`About ${haversineDistance(myLocation, item.locationPosition)} KM Away`} />
-                  )
-                }
+              {
+                    myLocation && (
+                      <TableRow label="Distance" value={`About ${haversineDistance(myLocation, item.locationPosition)} KM Away`} />
+                    )
+                  }
               <TableRow label="Posted By" value={<Link href={`/profile/${item.op._id}`}>{item.op.name}</Link>} />
             </tbody>
           </table>
@@ -88,7 +85,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   const id = context.params?.id;
 
   try {
-    const item = await axios.get(`${process.env.NEXTAUTH_URL}/api/GetRescueItem?id=${id}`);
+    const item = await axios.get(`${process.env.NEXTAUTH_URL}/api/GetRescueCenter?id=${id}`);
     return {
       props: {
         item: item.data,
