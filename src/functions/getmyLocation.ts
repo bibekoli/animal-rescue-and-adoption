@@ -1,6 +1,10 @@
 import Swal from "sweetalert2";
 
 export async function getLocation() {
+  if (process.env.MONGODB_NAME || !navigator) {
+    return null;
+  }
+
   if (navigator.geolocation) {
     try {
       const position = await new Promise((resolve, reject) => {
