@@ -10,7 +10,7 @@ import dynamic from "next/dynamic";
 import parseLocation from "@/functions/parseLocation";
 import Swal from "sweetalert2";
 import { haversineDistance } from "@/functions/haversineDistance";
-import { MAX_DISTANCE } from "../api/NewRescueItem";
+import { MAX_DISTANCE } from "@/functions/constant";
 const LocationPicker = dynamic(() => import('@/components/LocationPicker'), { ssr: false });
 
 type TextInputProps = {

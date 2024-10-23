@@ -2,8 +2,8 @@ import { NextApiRequest, NextApiResponse } from "next";
 import ConnectToDatabase from "@/functions/mongodb";
 import { haversineDistance } from "@/functions/haversineDistance";
 import Email from "@/functions/email";
+import { MAX_DISTANCE } from "@/functions/constant";
 
-export const MAX_DISTANCE = 10;
 export default async function NewRescueItem(
   req: NextApiRequest,
   res: NextApiResponse,
