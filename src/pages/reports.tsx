@@ -62,7 +62,7 @@ const LineChart = ({ chartData, chartTitle, label }: any) => {
     },
   };
 
-  // @ts-expect-error
+  // @ts-expect-error error expected
   return <Line data={data} options={options} />;
 };
 
@@ -98,7 +98,7 @@ const BarChart = ({ chartData, chartTitle, labels }: any) => {
     },
   };
 
-  // @ts-expect-error
+  // @ts-expect-error error expected
   return <Bar data={data} options={options} />;
 };
 
