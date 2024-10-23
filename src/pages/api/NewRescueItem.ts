@@ -3,6 +3,7 @@ import ConnectToDatabase from "@/functions/mongodb";
 import { haversineDistance } from "@/functions/haversineDistance";
 import Email from "@/functions/email";
 
+export const MAX_DISTANCE = 10;
 export default async function NewRescueItem(
   req: NextApiRequest,
   res: NextApiResponse,
@@ -15,7 +16,6 @@ export default async function NewRescueItem(
     const email = req.body.createdBy;
     const user = await users.findOne({ email });
 
-    const MAX_DISTANCE = 10;
     console.log(req.body.locationPosition);
     const memberIds = [];
     

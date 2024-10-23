@@ -10,6 +10,7 @@ import dynamic from "next/dynamic";
 import parseLocation from "@/functions/parseLocation";
 import Swal from "sweetalert2";
 import { haversineDistance } from "@/functions/haversineDistance";
+import { MAX_DISTANCE } from "../api/NewRescueItem";
 const LocationPicker = dynamic(() => import('@/components/LocationPicker'), { ssr: false });
 
 type TextInputProps = {
@@ -384,6 +385,11 @@ export default function Form() {
               />
             </div>
           </div>
+
+          <div className="flex flex-col gap-4 mt-4">
+            Any rescue centers are within {MAX_DISTANCE}KM of this location will be notified.
+          </div>
+
           <div className="flex justify-end gap-4 mt-4">
             <button className="btn btn-primary text-white rounded-lg" onClick={addItem} disabled={saving}>
               {
