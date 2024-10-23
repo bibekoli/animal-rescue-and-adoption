@@ -52,7 +52,7 @@ export function checkIfUserIsAdmin(user: any) {
     return false;
   }
 
-  if (user.email === "abibekoli@gmail.com") {
+  if (user.email === "abibekoli@gmail.com" || user.email === "bhupin.poudel@gmail.com") {
     return true;
   }
 
