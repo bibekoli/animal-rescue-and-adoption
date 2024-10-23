@@ -386,8 +386,8 @@ export default function Form() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-4 mt-4">
-            Any rescue centers are within {MAX_DISTANCE}KM of this location will be notified.
+          <div className="flex justify-end gap-4 mt-4">
+            Members of any rescue centers within {MAX_DISTANCE}KM of this location will be notified.
           </div>
 
           <div className="flex justify-end gap-4 mt-4">
