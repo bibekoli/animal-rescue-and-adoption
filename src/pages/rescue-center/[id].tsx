@@ -57,7 +57,7 @@ export default function AdoptionItem({ item }: { item: RescueCenter }) {
                       <TableRow label="Distance" value={`About ${haversineDistance(myLocation, item.locationPosition)} KM Away`} />
                     )
                   }
-              <TableRow label="Posted By" value={<Link href={`/profile/${item.op._id}`}>{item.op.name}</Link>} />
+              <TableRow label="Posted By" value={<Link href={`/profile/${item.createdBy}`}>{item.op.name}</Link>} />
             </tbody>
           </table>
           <div className="flex flex-col gap-4 mt-4">
