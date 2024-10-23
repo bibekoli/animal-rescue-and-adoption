@@ -12,14 +12,19 @@ const DisplayAllInMap = dynamic(() => import("@/components/DisplayAllInMap"), { 
 
 export default function AdoptionItems({ adoptionLists }: { adoptionLists: AdoptionItem[] }) {
   const [myLocation, setMyLocation] = useState<any>(null);
+  const [data, setData] = useState<any>(adoptionLists);
 
   useEffect(() => {
-    adoptionLists.sort((a, b) => {
+    const sortedData = adoptionLists.sort((a, b) => {
       if (a.locationPosition && b.locationPosition && myLocation) {
         return haversineDistance(myLocation, a.locationPosition) - haversineDistance(myLocation, b.locationPosition);
       }
       return 0;
-    });
+    }
+    );
+    setData(sortedData);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [myLocation]);
 
   useEffect(() => {
@@ -37,7 +42,7 @@ export default function AdoptionItems({ adoptionLists }: { adoptionLists: Adopti
       <div className="container mx-auto py-4">
         <h2 className="text-2xl font-bold">List of Animals Listed For Adoption</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-          {adoptionLists.map((adoption: any) => (
+          {data.map((adoption: any) => (
             <Link href={`/adoption/${adoption._id}`} key={adoption._id}>
             <div
               key={adoption._id}
@@ -50,7 +55,27 @@ export default function AdoptionItems({ adoptionLists }: { adoptionLists: Adopti
                 objectFit="cover"
               />
               <div className="p-4">
-                <h3 className="font-bold text-xl">{adoption.title}</h3>
+                <h3 className="font-bold text-xl">
+                  {adoption.title}
+                  {
+                    adoption.adoptionStatus === "Adopted" && (
+                      <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6 text-green-500 inline"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    )
+                  }
+                  </h3>
                 <div className="mt-4">
                   <p>
                     <span className="font-bold">Category: </span>

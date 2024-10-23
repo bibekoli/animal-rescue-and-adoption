@@ -11,14 +11,25 @@ const DisplayAllInMap = dynamic(() => import("@/components/DisplayAllInMap"), { 
 
 export default function RescueLists({ rescueLists }: { rescueLists: RescueItem[] }) {
   const [myLocation, setMyLocation] = useState<any>(null);
+  const [data, setData] = useState<any>(rescueLists);
 
   useEffect(() => {
-    rescueLists.sort((a, b) => {
+    // rescueLists.sort((a, b) => {
+    //   if (a.locationPosition && b.locationPosition && myLocation) {
+    //     return haversineDistance(myLocation, a.locationPosition) - haversineDistance(myLocation, b.locationPosition);
+    //   }
+    //   return 0;
+    // });
+    const sortedData = rescueLists.sort((a, b) => {
       if (a.locationPosition && b.locationPosition && myLocation) {
         return haversineDistance(myLocation, a.locationPosition) - haversineDistance(myLocation, b.locationPosition);
       }
       return 0;
-    });
+    }
+    );
+    setData(sortedData);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [myLocation]);
 
   useEffect(() => {
@@ -36,7 +47,7 @@ export default function RescueLists({ rescueLists }: { rescueLists: RescueItem[]
       <div className="container mx-auto">
         <h2 className="text-2xl font-bold">List of Animals For Rescue</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-          {rescueLists.map((rescue: any) => (
+          {data.map((rescue: any) => (
             <Link href={`/rescue/${rescue._id}`} key={rescue._id}>
             <div
               key={rescue._id}
@@ -49,7 +60,25 @@ export default function RescueLists({ rescueLists }: { rescueLists: RescueItem[]
                 objectFit="cover"
               />
               <div className="p-4">
-                <h3 className="font-bold text-xl">{rescue.title}</h3>
+                <h3 className="font-bold text-xl">
+                  {rescue.title}
+                  {rescue.rescueStatus === "Rescued" && (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6 text-green-500 inline"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  )}
+                </h3>
                 <div className="mt-4">
                   <p>
                     <span className="font-bold">Category: </span>

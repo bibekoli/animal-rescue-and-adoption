@@ -10,32 +10,66 @@ import { haversineDistance } from "@/functions/haversineDistance";
 
 export default function Home({ rescueLists, adoptionLists, rescueCenters }: { rescueLists: RescueItem[], adoptionLists: AdoptionItem[], rescueCenters: RescueCenter[] }) {
   const [myLocation, setMyLocation] = useState<any>(null);
+  const [sortedRescueLists, setSortedRescueLists] = useState<RescueItem[]>(rescueLists);
+  const [sortedAdoptionLists, setSortedAdoptionLists] = useState<AdoptionItem[]>(adoptionLists);
+  const [sortedRescueCenters, setSortedRescueCenters] = useState<RescueCenter[]>(rescueCenters);
 
   useEffect(() => {
-    rescueLists.sort((a, b) => {
+    // rescueLists.sort((a, b) => {
+    //   if (a.locationPosition && b.locationPosition && myLocation) {
+    //     return haversineDistance(myLocation, a.locationPosition) - haversineDistance(myLocation, b.locationPosition);
+    //   }
+    //   return 0;
+    // });
+    const sortedData = rescueLists.sort((a, b) => {
       if (a.locationPosition && b.locationPosition && myLocation) {
         return haversineDistance(myLocation, a.locationPosition) - haversineDistance(myLocation, b.locationPosition);
       }
       return 0;
-    });
+    }
+    );
+    setSortedRescueLists(sortedData);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [myLocation]);
 
   useEffect(() => {
-    adoptionLists.sort((a, b) => {
+    // adoptionLists.sort((a, b) => {
+    //   if (a.locationPosition && b.locationPosition && myLocation) {
+    //     return haversineDistance(myLocation, a.locationPosition) - haversineDistance(myLocation, b.locationPosition);
+    //   }
+    //   return 0;
+    // });
+    const sortedData = adoptionLists.sort((a, b) => {
       if (a.locationPosition && b.locationPosition && myLocation) {
         return haversineDistance(myLocation, a.locationPosition) - haversineDistance(myLocation, b.locationPosition);
       }
       return 0;
-    });
+    }
+    );
+    setSortedAdoptionLists(sortedData);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [myLocation]);
 
   useEffect(() => {
-    rescueCenters.sort((a, b) => {
+    // rescueCenters.sort((a, b) => {
+    //   if (a.locationPosition && b.locationPosition && myLocation) {
+    //     return haversineDistance(myLocation, a.locationPosition) - haversineDistance(myLocation, b.locationPosition);
+    //   }
+    //   return 0;
+    // });
+
+    const sortedData = rescueCenters.sort((a, b) => {
       if (a.locationPosition && b.locationPosition && myLocation) {
         return haversineDistance(myLocation, a.locationPosition) - haversineDistance(myLocation, b.locationPosition);
       }
       return 0;
-    });
+    }
+    );
+    setSortedRescueCenters(sortedData);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [myLocation]);
 
   useEffect(() => {
@@ -54,7 +88,7 @@ export default function Home({ rescueLists, adoptionLists, rescueCenters }: { re
       <div className="container mx-auto py-12">
         <h2 className="text-2xl font-bold">Rescue Items</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-          {rescueLists.map((rescue) => {
+          {sortedRescueLists.map((rescue) => {
             if (rescue.rescueStatus === "Rescued") {
               return null;
             }
@@ -110,7 +144,7 @@ export default function Home({ rescueLists, adoptionLists, rescueCenters }: { re
       <div className="container mx-auto py-12">
         <h2 className="text-2xl font-bold">Adoption Items</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-          {adoptionLists.map((adoption) => {
+          {sortedAdoptionLists.map((adoption) => {
             if (adoption.adoptionStatus === "Adopted") {
               return null;
             }
@@ -171,7 +205,7 @@ export default function Home({ rescueLists, adoptionLists, rescueCenters }: { re
       <div className="container mx-auto py-12">
         <h2 className="text-2xl font-bold">Rescue Centers</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-          {rescueCenters.map((center) => (
+          {sortedRescueCenters.map((center) => (
             <Link href={`/rescue-center/${center._id}`} key={center._id}>
             <div
               key={center._id}
