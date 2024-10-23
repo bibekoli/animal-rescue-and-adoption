@@ -13,6 +13,15 @@ export default function RescueLists({ rescueLists }: { rescueLists: RescueItem[]
   const [myLocation, setMyLocation] = useState<any>(null);
 
   useEffect(() => {
+    rescueLists.sort((a, b) => {
+      if (a.locationPosition && b.locationPosition && myLocation) {
+        return haversineDistance(myLocation, a.locationPosition) - haversineDistance(myLocation, b.locationPosition);
+      }
+      return 0;
+    });
+  }, [myLocation]);
+
+  useEffect(() => {
     getLocation().then((location) => {
       setMyLocation(location);
     });
@@ -53,6 +62,10 @@ export default function RescueLists({ rescueLists }: { rescueLists: RescueItem[]
                   <p>
                     <span className="font-bold">Condition: </span>
                     {rescue.status}
+                  </p>
+                  <p>
+                    <span className="font-bold">Rescue Status: </span>
+                    {rescue.rescueStatus}
                   </p>
                   {
                     myLocation && (

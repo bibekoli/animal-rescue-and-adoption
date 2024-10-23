@@ -14,6 +14,15 @@ export default function AdoptionItems({ adoptionLists }: { adoptionLists: Adopti
   const [myLocation, setMyLocation] = useState<any>(null);
 
   useEffect(() => {
+    adoptionLists.sort((a, b) => {
+      if (a.locationPosition && b.locationPosition && myLocation) {
+        return haversineDistance(myLocation, a.locationPosition) - haversineDistance(myLocation, b.locationPosition);
+      }
+      return 0;
+    });
+  }, [myLocation]);
+
+  useEffect(() => {
     getLocation().then((location) => {
       setMyLocation(location);
     });
@@ -58,6 +67,10 @@ export default function AdoptionItems({ adoptionLists }: { adoptionLists: Adopti
                   <p>
                     <span className="font-bold">Vaccinated: </span>
                     {adoption.vaccinated}
+                  </p>
+                  <p>
+                    <span className="font-bold">Adoption Status: </span>
+                    {adoption.adoptionStatus}
                   </p>
                   {
                     myLocation && (
