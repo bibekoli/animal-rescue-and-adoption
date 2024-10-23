@@ -9,7 +9,7 @@ import { haversineDistance } from "@/functions/haversineDistance";
 import Head from "next/head";
 const LocationDisplay = dynamic(() => import("@/components/LocationDisplay"), { ssr: false });
 
-const TableRow = ({ label, value }: { label: string, value: any }) => (
+export const TableRow = ({ label, value }: { label: string, value: any }) => (
   <tr className="border-b">
     <td className="p-2 font-[500]">{label}</td>
     <td className="p-2 font-[500] text-gray-600">{value}</td>

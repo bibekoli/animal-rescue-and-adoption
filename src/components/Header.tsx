@@ -165,6 +165,12 @@ export default function Header() {
                     </Link>
                   </li>
                   <li>
+                    <Link href="/my-rescue-center">
+                      <Icon icon="ic:baseline-house" width={25} height={25} />
+                      My Rescue Center
+                    </Link>
+                  </li>
+                  <li>
                     <Link href="/new/rescue">
                       <Icon icon="gala:add" width={25} height={25} />
                       Post For Rescue
