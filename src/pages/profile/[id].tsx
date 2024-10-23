@@ -36,27 +36,6 @@ export default function MyPostings({ myPostings }: { myPostings: MyPostings }) {
     }
   }
 
-  const markAsAdopted = async (id: string) => {
-    const result = await Swal.fire({
-      title: 'Are you sure?',
-      text: "Do you want to mark this item as adopted?",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, mark it!',
-      cancelButtonText: 'No, cancel!'
-    });
-
-    if (result.isConfirmed) {
-      try {
-        await axios.post(`/api/MarkAsAdopted`, { _id: id });
-        Swal.fire('Success', 'Marked as Adopted', 'success');
-        window.location.reload();
-      } catch (error) {
-        Swal.fire('Error', 'Failed to mark as adopted', 'error');
-      }
-    }
-  }
-
   return (
     <>
     <Head>
@@ -132,10 +111,6 @@ export default function MyPostings({ myPostings }: { myPostings: MyPostings }) {
                   </div>
                 </div>
                 <div className="flex space-x-4">
-                  <button className={`text-blue-500 hover:underline flex items-center ${adoptionItem.adoptionStatus === 'Adopted' ? 'hidden' : ''}`} onClick={() => markAsAdopted(adoptionItem._id)}>
-                    <Icon icon="mdi:check-circle" className="mr-1" />
-                    Mark as Adopted
-                  </button>
                   <Link href={`/adoption/${adoptionItem._id}`} className="text-green-500 hover:underline flex items-center">
                     <Icon icon="mdi:eye" className="mr-1" />
                     View
