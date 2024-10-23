@@ -15,27 +15,6 @@ type MyPostings = {
 }
 
 export default function MyPostings({ myPostings }: { myPostings: MyPostings }) {
-  const markAsRescued = async (id: string) => {
-    const result = await Swal.fire({
-      title: 'Are you sure?',
-      text: "Do you want to mark this item as rescued?",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, mark it!',
-      cancelButtonText: 'No, cancel!'
-    });
-
-    if (result.isConfirmed) {
-      try {
-        await axios.post(`/api/MarkAsRescued`, { _id: id });
-        Swal.fire('Success', 'Marked as Rescued', 'success');
-        window.location.reload();
-      } catch (error) {
-        Swal.fire('Error', 'Failed to mark as rescued', 'error');
-      }
-    }
-  }
-
   return (
     <>
     <Head>
@@ -69,10 +48,6 @@ export default function MyPostings({ myPostings }: { myPostings: MyPostings }) {
                   </div>
                 </div>
                 <div className="flex space-x-4">
-                  <button className={`text-blue-500 hover:underline flex items-center ${rescueItem.rescueStatus === 'Rescued' ? 'hidden' : ''}`} onClick={() => markAsRescued(rescueItem._id)}>
-                    <Icon icon="mdi:check-circle" className="mr-1" />
-                    Mark as Rescued
-                  </button>
                   <Link href={`/rescue/${rescueItem._id}`} className="text-green-500 hover:underline flex items-center">
                     <Icon icon="mdi:eye" className="mr-1" />
                     View

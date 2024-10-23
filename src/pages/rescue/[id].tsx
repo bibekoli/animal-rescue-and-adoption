@@ -7,6 +7,7 @@ import Link from "next/link";
 import { getLocation } from "@/functions/getmyLocation";
 import { haversineDistance } from "@/functions/haversineDistance";
 import Head from "next/head";
+import Swal from "sweetalert2";
 const LocationDisplay = dynamic(() => import("@/components/LocationDisplay"), { ssr: false });
 
 const TableRow = ({ label, value }: { label: string, value: any }) => (
@@ -26,6 +27,27 @@ export default function RescueItem({ item }: { item: RescueItem }) {
     });
   }, [item]);
 
+  const markAsRescued = async (id: string) => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "Do you want to mark this item as rescued?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, mark it!',
+      cancelButtonText: 'No, cancel!'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await axios.post(`/api/MarkAsRescued`, { _id: id });
+        Swal.fire('Success', 'Marked as Rescued', 'success');
+        window.location.reload();
+      } catch (error) {
+        Swal.fire('Error', 'Failed to mark as rescued', 'error');
+      }
+    }
+  }
+
   return (
     <>
       <Head>
@@ -34,6 +56,13 @@ export default function RescueItem({ item }: { item: RescueItem }) {
       <div className="flex flex-col md:flex-row max-w-screen-xl mx-auto">
         <div className={`flex flex-col md:w-1/2 m-4 relative rounded-xl`}>
           <ImageCarousel images={item.images} activeImageIndex={activeImageIndex} setActiveImageIndex={setActiveImageIndex} />
+          {
+            item.rescueStatus !== "Rescued" && myLocation && haversineDistance(myLocation, item.locationPosition) < 3 && (
+              <div className="absolute top-4 right-4">
+                <button onClick={() => markAsRescued(item._id)} className="bg-green-500 text-white p-2 rounded-lg">Mark as Rescued</button>
+              </div>
+            )
+          }
         </div>
         <div className="flex flex-col md:w-1/2">
           <h1 className={`text-2xl font-[800] flex items-center gap-2`}>
